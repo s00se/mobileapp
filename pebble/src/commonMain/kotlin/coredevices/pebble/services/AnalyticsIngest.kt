@@ -31,26 +31,9 @@ class AnalyticsIngest(
 
     @OptIn(ExperimentalEncodingApi::class)
     suspend fun uploadHeartbeat(row: AnalyticsHeartbeatEntity): Boolean {
-        val baseUrl = apiConfig.bugUrl
-        if (baseUrl == null) {
-            logger.d { "No base URL configured; skipping analytics upload" }
-            return true
-        }
-        val url = "$baseUrl/analytics/ingest"
-        val body = buildEnvelope(row)
-        val response = try {
-            httpClient.post(url) {
-                contentType(ContentType.Application.Json)
-                setBody(body.toString())
-            }
-        } catch (e: IOException) {
-            logger.w(e) { "Failed to POST analytics heartbeat: ${e.message}" }
-            return false
-        }
-        return if (!response.status.isSuccess()) {
-            logger.w { "Analytics ingest response = ${response.status}" }
-            false
-        } else true
+        // Short-circuit analytics ingest to honor opt-out / remove tracking.
+        logger.d { "Analytics ingest disabled by build configuration; skipping upload" }
+        return true
     }
 
     @OptIn(ExperimentalEncodingApi::class)
