@@ -5,7 +5,7 @@ import PlatformContext
 import PlatformShareLauncher
 import android.content.Context
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
-import coredevices.analytics.createAndroidAnalytics
+import coredevices.analytics.NoopAnalytics
 import coredevices.coreapp.PebbleBackgroundManager
 import coredevices.coreapp.appVersionName
 import coredevices.coreapp.auth.RealAppleAuthUtil
@@ -71,7 +71,8 @@ val androidDefaultModule = module {
             }
         )
     }
-    single { createAndroidAnalytics(get()) }
+    // Inject NoopAnalytics to disable Mixpanel for Android.
+    single<coredevices.analytics.AnalyticsBackend> { NoopAnalytics }
     singleOf(::ModelDownloadManager)
     singleOf(::PebbleBackgroundManager)
 }
