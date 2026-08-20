@@ -1,50 +1,28 @@
 package coredevices.analytics
 
 import PlatformContext
-import com.mixpanel.android.mpmetrics.MixpanelAPI
 import coredevices.util.CommonBuildKonfig
 
 fun createAndroidAnalytics(platformContext: PlatformContext): AnalyticsBackend {
-    val token = CommonBuildKonfig.MIXPANEL_TOKEN
-    if (token == null) {
-        return AndroidAnalyticsBackend(null)
-    }
-    val mixpanel = MixpanelAPI.getInstance(platformContext.context, CommonBuildKonfig.MIXPANEL_TOKEN, true)
-    return AndroidAnalyticsBackend(mixpanel)
+    // Analytics disabled on Android; return the no-op backend.
+    return NoopAnalytics
 }
 
 class AndroidAnalyticsBackend(
-    private val mixpanel: MixpanelAPI?,
+    private val mixpanel: Any? = null,
 ) : AnalyticsBackend {
     override fun logEvent(
         name: String,
         parameters: Map<String, Any>?,
     ) {
-        mixpanel?.trackMap(name, parameters)
+        // no-op
     }
 
     override fun addGlobalProperty(name: String, value: String?) {
-        if (name == PROP_EMAIL) {
-            if (value == null) {
-                mixpanel?.reset()
-            } else {
-                mixpanel?.identify(value)
-            }
-        } else {
-            if (value == null) {
-                mixpanel?.unregisterSuperProperty(name)
-            } else {
-                mixpanel?.registerSuperPropertiesOnceMap(mapOf(name to value))
-            }
-        }
+        // no-op
     }
 
     override fun setEnabled(enabled: Boolean) {
-        if (enabled) {
-            mixpanel?.optInTracking()
-        } else {
-            mixpanel?.flush()
-            mixpanel?.optOutTracking()
-        }
+        // no-op
     }
 }
